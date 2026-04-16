@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/bottomSheet"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:behavior_hideable="true"
+    app:behavior_peekHeight="0dp"
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+    app:cardCornerRadius="28dp"
+    app:cardElevation="16dp"
+    app:cardBackgroundColor="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <View
+            android:layout_width="48dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="24dp"
+            android:background="@color/divider" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Personalize Results"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_black"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/liveFeedback"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tweak sliders to see instant changes"
+            android:textColor="@color/rating_green"
+            android:textSize="14sp"
+            android:layout_marginBottom="28dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Budget Sensitivity"
+            android:textStyle="bold"
+            android:textColor="@color/text_grey_dark"
+            android:textSize="14sp" />
+        <com.google.android.material.slider.Slider
+            android:id="@+id/priceSlider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:valueFrom="0"
+            android:valueTo="100"
+            android:value="50"
+            app:thumbColor="@color/primary_red"
+            app:trackColorActive="@color/primary_red"
+            app:trackColorInactive="@color/primary_red_light" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Quality over Quantity"
+            android:textStyle="bold"
+            android:textColor="@color/text_grey_dark"
+            android:textSize="14sp" />
+        <com.google.android.material.slider.Slider
+            android:id="@+id/qualitySlider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:valueFrom="0"
+            android:valueTo="100"
+            android:value="50"
+            app:thumbColor="@color/primary_red"
+            app:trackColorActive="@color/primary_red"
+            app:trackColorInactive="@color/primary_red_light" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Proximity (Delivery Distance)"
+            android:textStyle="bold"
+            android:textColor="@color/text_grey_dark"
+            android:textSize="14sp" />
+        <com.google.android.material.slider.Slider
+            android:id="@+id/distanceSlider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:valueFrom="0"
+            android:valueTo="100"
+            android:value="50"
+            app:thumbColor="@color/primary_red"
+            app:trackColorActive="@color/primary_red"
+            app:trackColorInactive="@color/primary_red_light" />
+
+        <TextView
+            android:id="@+id/weightIndicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_gravity="center_horizontal"
+            android:textSize="11sp"
+            android:textColor="@color/text_grey_light" />
+
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

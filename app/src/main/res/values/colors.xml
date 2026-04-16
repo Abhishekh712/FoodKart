@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Primary Branding -->
+    <color name="primary_red">#E23744</color>
+    <color name="primary_red_dark">#C12733</color>
+    <color name="primary_red_light">#FFEBED</color>
+    <color name="primary_red_pale">#FFF5F6</color>
+
+    <!-- Text Colors -->
+    <color name="text_black">#1C1C1C</color>
+    <color name="text_grey_dark">#4A4A4A</color>
+    <color name="text_grey_medium">#686B78</color>
+    <color name="text_grey_light">#9EA0A9</color>
+
+    <!-- Backgrounds & Borders -->
+    <color name="bg_light_grey">#F4F4F4</color>
+    <color name="bg_surface">#FFFFFF</color>
+    <color name="border_light">#E9E9EB</color>
+    <color name="divider">#F1F1F6</color>
+
+    <!-- Status Colors -->
+    <color name="rating_green">#267E3E</color>
+    <color name="veg_green">#0FA44A</color>
+    <color name="nonveg_red">#ED4D4D</color>
+    <color name="star_yellow">#FFB300</color>
+</resources>
