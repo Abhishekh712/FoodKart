@@ -38,6 +38,9 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation("com.github.bumptech.glide:glide:4.16.0")
     
+    // Razorpay
+    implementation(libs.razorpay.checkout)
+
     // Room components
     implementation(libs.room.runtime)
     // annotationProcessor(libs.room.compiler) // For Java

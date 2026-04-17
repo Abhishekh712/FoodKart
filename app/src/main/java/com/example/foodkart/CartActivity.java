@@ -1,15 +1,20 @@
 package com.example.foodkart;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 import com.example.foodkart.ui.CheckoutBottomSheet;
+import com.razorpay.Checkout;
+import com.razorpay.PaymentResultListener;
+import org.json.JSONObject;
 import java.util.Locale;
 
-public class CartActivity extends AppCompatActivity {
+public class CartActivity extends AppCompatActivity implements PaymentResultListener {
 
     private CartAdapter adapter;
     private RecyclerView rvCartItems;
@@ -20,6 +25,9 @@ public class CartActivity extends AppCompatActivity {
     protected void onCreate(Bundle b) {
         super.onCreate(b);
         setContentView(R.layout.activity_cart);
+
+        // Preload Razorpay
+        Checkout.preload(getApplicationContext());
 
         setupToolbar();
         setupRecyclerView();
@@ -66,5 +74,49 @@ public class CartActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    /**
+     * Starts the Razorpay payment flow.
+     */
+    public void startPayment(double amount) {
+        final Checkout checkout = new Checkout();
+        checkout.setKeyID("rzp_test_SeSHp76cDY5J3k");
+
+        try {
+            JSONObject options = new JSONObject();
+            options.put("name", "FoodKart");
+            options.put("description", "Food Order Payment");
+            options.put("image", "https://s3.amazonaws.com/rzp-mobile/images/rzp.png");
+            options.put("theme.color", "#E53935");
+            options.put("currency", "INR");
+            options.put("amount", (int)(amount * 100)); // Amount in paise
+
+            JSONObject prefill = new JSONObject();
+            prefill.put("email", "customer@example.com");
+            prefill.put("contact", "9876543210");
+            options.put("prefill", prefill);
+
+            checkout.open(this, options);
+        } catch (Exception e) {
+            Toast.makeText(this, "Error in starting Razorpay: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onPaymentSuccess(String razorpayPaymentID) {
+        Toast.makeText(this, "Payment Successful: " + razorpayPaymentID, Toast.LENGTH_SHORT).show();
+        // Trigger SQL order placement logic
+        CartRepository.getInstance(this).placeOrder();
+
+        // Navigate to Order Success flow (returning home)
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onPaymentError(int code, String response) {
+        Toast.makeText(this, "Payment Failed: " + response, Toast.LENGTH_SHORT).show();
     }
 }

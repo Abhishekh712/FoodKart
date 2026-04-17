@@ -1,8 +1,10 @@
 package com.example.foodkart.ui;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +14,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import com.example.foodkart.CartActivity;
 import com.example.foodkart.CartRepository;
+import com.example.foodkart.MainActivity;
 import com.example.foodkart.R;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import java.util.Locale;
@@ -32,11 +36,28 @@ public class CheckoutBottomSheet extends BottomSheetDialogFragment {
         super.onViewCreated(view, savedInstanceState);
 
         TextView totalText = view.findViewById(R.id.totalText);
-        double total = CartRepository.getInstance().getTotalCartPrice();
+        double total = CartRepository.getInstance(requireContext()).getTotalCartPrice();
         totalText.setText(String.format(Locale.US, "₹%.2f", total));
 
+        // Original QR Payment option
         view.findViewById(R.id.btnCheckout).setOnClickListener(v -> {
             showQrPaymentDialog();
+        });
+
+        // New Razorpay Payment option - Fixed logic
+        view.findViewById(R.id.btnRazorpay).setOnClickListener(v -> {
+            Log.d("RAZORPAY_DEBUG", "Starting payment from checkout");
+            
+            if (getActivity() instanceof CartActivity) {
+                ((CartActivity) getActivity()).startPayment(total);
+                dismiss();
+            } else if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).startPayment(total);
+                dismiss();
+            } else {
+                // Fallback for safety
+                Toast.makeText(getContext(), "Payment gateway is loading...", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
@@ -76,7 +97,6 @@ public class CheckoutBottomSheet extends BottomSheetDialogFragment {
 
         dialog.show();
         
-        // Optional: Ensure the dialog background is transparent to respect rounded corners
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         }
@@ -84,7 +104,14 @@ public class CheckoutBottomSheet extends BottomSheetDialogFragment {
 
     private void completeOrder() {
         Toast.makeText(getContext(), "Order Placed Successfully!", Toast.LENGTH_SHORT).show();
-        CartRepository.getInstance().clearCart();
+        // Clear cart and redirect home
+        CartRepository.getInstance(requireContext()).placeOrder();
+        
+        if (getActivity() != null) {
+            Intent intent = new Intent(getActivity(), MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+        }
         dismiss();
     }
 
