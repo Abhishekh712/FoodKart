@@ -26,7 +26,10 @@ public class HomeAdapter extends ListAdapter<HomeItem, RecyclerView.ViewHolder> 
                     return oldItem.getRestaurant().getId().equals(newItem.getRestaurant().getId());
                 }
                 if (oldItem.getType() == HomeItem.TYPE_BUDGET_SCROLL) return true;
-                return oldItem.getTitle() != null && oldItem.getTitle().equals(newItem.getTitle());
+                if (oldItem.getType() == HomeItem.TYPE_SECTION_HEADER) {
+                    return oldItem.getTitle() != null && oldItem.getTitle().equals(newItem.getTitle());
+                }
+                return true;
             }
 
             @Override
@@ -34,7 +37,9 @@ public class HomeAdapter extends ListAdapter<HomeItem, RecyclerView.ViewHolder> 
                 if (oldItem.getType() == HomeItem.TYPE_RESTAURANT) {
                     Restaurant r1 = oldItem.getRestaurant();
                     Restaurant r2 = newItem.getRestaurant();
-                    return r1.getName().equals(r2.getName()) && r1.getAverageRating() == r2.getAverageRating();
+                    return r1.getName().equals(r2.getName()) && 
+                           r1.getAverageRating() == r2.getAverageRating() &&
+                           (oldItem.getFilterType() == null ? newItem.getFilterType() == null : oldItem.getFilterType().equals(newItem.getFilterType()));
                 }
                 return true;
             }
@@ -69,16 +74,22 @@ public class HomeAdapter extends ListAdapter<HomeItem, RecyclerView.ViewHolder> 
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         HomeItem item = getItem(position);
         if (holder instanceof RestaurantViewHolder) {
-            ((RestaurantViewHolder) holder).bind(item.getRestaurant(), position);
+            ((RestaurantViewHolder) holder).bind(item, position);
         } else if (holder instanceof SectionHeaderViewHolder) {
             ((SectionHeaderViewHolder) holder).title.setText(item.getTitle());
         } else if (holder instanceof BudgetScrollViewHolder) {
-            ((BudgetScrollViewHolder) holder).bind(item.getBudgetRestaurants());
+            ((BudgetScrollViewHolder) holder).bind(item.getBudgetRestaurants(), item.getFilterType());
         }
     }
 
     static class SearchViewHolder extends RecyclerView.ViewHolder {
-        SearchViewHolder(View v) { super(v); }
+        SearchViewHolder(View v) { 
+            super(v);
+            v.setOnClickListener(view -> {
+                Intent intent = new Intent(view.getContext(), SearchActivity.class);
+                view.getContext().startActivity(intent);
+            });
+        }
     }
 
     static class BannerViewHolder extends RecyclerView.ViewHolder {
@@ -100,8 +111,8 @@ public class HomeAdapter extends ListAdapter<HomeItem, RecyclerView.ViewHolder> 
             rv = v.findViewById(R.id.horizontalRecyclerView);
             rv.setLayoutManager(new LinearLayoutManager(v.getContext(), LinearLayoutManager.HORIZONTAL, false));
         }
-        void bind(java.util.List<Restaurant> list) {
-            rv.setAdapter(new BudgetAdapter(list));
+        void bind(java.util.List<Restaurant> list, String filterType) {
+            rv.setAdapter(new BudgetAdapter(list, filterType));
         }
     }
 
@@ -121,7 +132,8 @@ public class HomeAdapter extends ListAdapter<HomeItem, RecyclerView.ViewHolder> 
             badge = v.findViewById(R.id.restaurantBadge);
         }
 
-        void bind(Restaurant r, int pos) {
+        void bind(HomeItem item, int pos) {
+            Restaurant r = item.getRestaurant();
             name.setText(r.getName());
             cuisine.setText(r.getCuisine());
             rating.setText(String.format(Locale.US, "%.1f ★", r.getAverageRating()));
@@ -148,6 +160,7 @@ public class HomeAdapter extends ListAdapter<HomeItem, RecyclerView.ViewHolder> 
             itemView.setOnClickListener(v -> {
                 Intent intent = new Intent(v.getContext(), RestaurantDetailActivity.class);
                 intent.putExtra(RestaurantDetailActivity.EXTRA_RESTAURANT_ID, r.getId());
+                intent.putExtra(RestaurantDetailActivity.EXTRA_FILTER_TYPE, item.getFilterType());
                 v.getContext().startActivity(intent);
             });
         }

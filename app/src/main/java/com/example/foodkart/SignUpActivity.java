@@ -16,6 +16,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     private EditText etName, etEmail, etPassword;
     private SharedPreferences sharedPrefs;
+    private DatabaseHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +24,7 @@ public class SignUpActivity extends AppCompatActivity {
         setContentView(R.layout.activity_signup);
 
         sharedPrefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        dbHelper = new DatabaseHelper(this);
 
         etName = findViewById(R.id.etName);
         etEmail = findViewById(R.id.etEmail);
@@ -34,20 +36,25 @@ public class SignUpActivity extends AppCompatActivity {
             String pass = etPassword.getText().toString();
 
             if (!name.isEmpty() && !email.isEmpty() && !pass.isEmpty()) {
-                // In a real app, you'd save this to a database. 
-                // For this demo, we'll just log them in immediately.
-                sharedPrefs.edit()
-                    .putBoolean(KEY_IS_LOGGED_IN, true)
-                    .putString(KEY_LOGGED_IN_USER, email)
-                    .putString(email + "_name", name) // Store name for profile
-                    .apply();
-
-                Toast.makeText(this, "Account created successfully!", Toast.LENGTH_SHORT).show();
+                // Save user data to SQLite database
+                boolean success = dbHelper.addUser(name, email, pass);
                 
-                Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-                finish();
+                if (success) {
+                    // Still keep track of session in SharedPreferences
+                    sharedPrefs.edit()
+                        .putBoolean(KEY_IS_LOGGED_IN, true)
+                        .putString(KEY_LOGGED_IN_USER, email)
+                        .apply();
+
+                    Toast.makeText(this, "Account created successfully!", Toast.LENGTH_SHORT).show();
+                    
+                    Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    Toast.makeText(this, "Registration failed. Email might already exist.", Toast.LENGTH_SHORT).show();
+                }
             } else {
                 Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
             }

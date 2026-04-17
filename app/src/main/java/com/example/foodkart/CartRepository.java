@@ -1,23 +1,34 @@
 package com.example.foodkart;
 
+import android.content.Context;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class CartRepository {
     private static CartRepository instance;
-    private final Map<String, CartItem> cartMap = new HashMap<>();
+    private final DatabaseHelper dbHelper;
     private final MutableLiveData<List<CartItem>> cartItems = new MutableLiveData<>(new ArrayList<>());
+    private String currentUserEmail = "guest";
 
-    private CartRepository() {}
+    private CartRepository(Context context) {
+        dbHelper = new DatabaseHelper(context.getApplicationContext());
+        // Load initial user session
+        currentUserEmail = context.getSharedPreferences("FoodKartPrefs", Context.MODE_PRIVATE)
+                .getString("logged_in_user", "guest");
+        refreshCart();
+    }
 
-    public static synchronized CartRepository getInstance() {
+    public static synchronized CartRepository getInstance(Context context) {
         if (instance == null) {
-            instance = new CartRepository();
+            instance = new CartRepository(context);
         }
+        return instance;
+    }
+
+    // Overloaded for when context is not available but instance exists
+    public static synchronized CartRepository getInstance() {
         return instance;
     }
 
@@ -25,50 +36,59 @@ public class CartRepository {
         return cartItems;
     }
 
-    public synchronized void addItem(FoodItem foodItem) {
-        if (cartMap.containsKey(foodItem.getId())) {
-            CartItem item = cartMap.get(foodItem.getId());
-            item.setQuantity(item.getQuantity() + 1);
-        } else {
-            cartMap.put(foodItem.getId(), new CartItem(foodItem, 1));
-        }
-        notifyChanges();
+    public void refreshUserSession(Context context) {
+        currentUserEmail = context.getSharedPreferences("FoodKartPrefs", Context.MODE_PRIVATE)
+                .getString("logged_in_user", "guest");
+        refreshCart();
     }
 
-    public synchronized void removeItem(FoodItem foodItem) {
-        if (cartMap.containsKey(foodItem.getId())) {
-            CartItem item = cartMap.get(foodItem.getId());
-            if (item.getQuantity() > 1) {
-                item.setQuantity(item.getQuantity() - 1);
-            } else {
-                cartMap.remove(foodItem.getId());
-            }
-            notifyChanges();
-        }
+    public void refreshCart() {
+        List<CartItem> items = dbHelper.getCartItems(currentUserEmail);
+        cartItems.postValue(items);
     }
 
-    public synchronized void clearCart() {
-        cartMap.clear();
-        notifyChanges();
+    public void addItem(FoodItem foodItem) {
+        dbHelper.addToCart(currentUserEmail, foodItem);
+        refreshCart();
+    }
+
+    public void removeItem(FoodItem foodItem) {
+        dbHelper.removeFromCart(currentUserEmail, foodItem.getId());
+        refreshCart();
+    }
+
+    public void clearCart() {
+        dbHelper.clearCart(currentUserEmail);
+        refreshCart();
+    }
+
+    public void placeOrder() {
+        double total = getTotalCartPrice();
+        if (total > 0) {
+            dbHelper.addOrder(currentUserEmail, total);
+            clearCart();
+        }
     }
 
     public double getTotalCartPrice() {
+        List<CartItem> items = cartItems.getValue();
         double total = 0;
-        for (CartItem item : cartMap.values()) {
-            total += item.getTotalPrice();
+        if (items != null) {
+            for (CartItem item : items) {
+                total += item.getTotalPrice();
+            }
         }
         return total;
     }
 
     public int getTotalItemCount() {
+        List<CartItem> items = cartItems.getValue();
         int count = 0;
-        for (CartItem item : cartMap.values()) {
-            count += item.getQuantity();
+        if (items != null) {
+            for (CartItem item : items) {
+                count += item.getQuantity();
+            }
         }
         return count;
-    }
-
-    private void notifyChanges() {
-        cartItems.postValue(new ArrayList<>(cartMap.values()));
     }
 }

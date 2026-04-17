@@ -27,13 +27,15 @@ public class SearchActivity extends AppCompatActivity implements TextToSpeech.On
     private TextView emptyStateText;
     private TextToSpeech tts;
     private List<Restaurant> allRestaurants;
+    private DatabaseHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
 
-        allRestaurants = MockData.getRestaurants();
+        dbHelper = new DatabaseHelper(this);
+        allRestaurants = dbHelper.getAllRestaurants();
         tts = new TextToSpeech(this, this);
 
         initUI();

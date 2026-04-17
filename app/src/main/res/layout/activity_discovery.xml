@@ -9,15 +9,39 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"
+        android:paddingTop="48dp"
         app:elevation="0dp">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="FoodKart"
-            app:titleTextColor="@color/text_black"
-            app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge" />
+            android:paddingHorizontal="16dp">
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_toStartOf="@id/btnProfile"
+                app:contentInsetStart="0dp"
+                app:title="FoodKart"
+                app:titleTextColor="@color/text_black"
+                app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge" />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/btnProfile"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="2dp"
+                android:src="@android:drawable/ic_menu_myplaces"
+                app:shapeAppearanceOverlay="@style/CircularImage"
+                app:strokeColor="@color/divider"
+                app:strokeWidth="1dp" />
+
+        </RelativeLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
 

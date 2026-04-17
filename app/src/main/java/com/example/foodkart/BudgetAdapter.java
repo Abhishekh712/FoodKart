@@ -14,9 +14,11 @@ import java.util.Locale;
 
 public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.ViewHolder> {
     private final List<Restaurant> restaurants;
+    private final String filterType;
 
-    public BudgetAdapter(List<Restaurant> restaurants) {
+    public BudgetAdapter(List<Restaurant> restaurants, String filterType) {
         this.restaurants = restaurants;
+        this.filterType = filterType;
     }
 
     @NonNull
@@ -39,6 +41,7 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.ViewHolder
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(v.getContext(), RestaurantDetailActivity.class);
             intent.putExtra(RestaurantDetailActivity.EXTRA_RESTAURANT_ID, r.getId());
+            intent.putExtra(RestaurantDetailActivity.EXTRA_FILTER_TYPE, filterType);
             v.getContext().startActivity(intent);
         });
     }

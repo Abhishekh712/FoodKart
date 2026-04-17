@@ -11,13 +11,34 @@
         android:orientation="vertical"
         android:padding="24dp">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Hungry?"
-            android:textSize="34sp"
-            android:textStyle="bold"
-            android:textColor="@color/text_black" />
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hungry?"
+                android:textSize="34sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_black" />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/btnProfile"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="2dp"
+                android:src="@android:drawable/ic_menu_myplaces"
+                app:shapeAppearanceOverlay="@style/CircularImage"
+                app:strokeColor="@color/divider"
+                app:strokeWidth="1dp" />
+
+        </RelativeLayout>
 
         <TextView
             android:layout_width="wrap_content"

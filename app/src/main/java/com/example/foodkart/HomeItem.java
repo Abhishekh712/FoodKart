@@ -13,6 +13,7 @@ public class HomeItem {
     private String title;
     private Restaurant restaurant;
     private List<Restaurant> budgetRestaurants;
+    private String filterType;
 
     public HomeItem(int type) {
         this.type = type;
@@ -37,4 +38,7 @@ public class HomeItem {
     public String getTitle() { return title; }
     public Restaurant getRestaurant() { return restaurant; }
     public List<Restaurant> getBudgetRestaurants() { return budgetRestaurants; }
+    
+    public String getFilterType() { return filterType; }
+    public void setFilterType(String filterType) { this.filterType = filterType; }
 }

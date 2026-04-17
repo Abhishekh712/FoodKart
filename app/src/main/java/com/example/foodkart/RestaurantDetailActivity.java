@@ -17,6 +17,7 @@ import java.util.Locale;
 public class RestaurantDetailActivity extends AppCompatActivity {
 
     public static final String EXTRA_RESTAURANT_ID = "restaurant_id";
+    public static final String EXTRA_FILTER_TYPE = "filter_type";
     private View viewCartBar;
     private TextView cartSummaryText;
 
@@ -26,11 +27,24 @@ public class RestaurantDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_restaurant_detail);
 
         String restaurantId = getIntent().getStringExtra(EXTRA_RESTAURANT_ID);
+        String filterType = getIntent().getStringExtra(EXTRA_FILTER_TYPE);
+        
         Restaurant restaurant = findRestaurantById(restaurantId);
 
         if (restaurant == null) {
             finish();
             return;
+        }
+
+        // Apply filtering logic to the menu if "Best Value" was selected
+        if (MainActivity.FILTER_BEST_VALUE.equals(filterType)) {
+            List<FoodItem> filteredMenu = new ArrayList<>();
+            for (FoodItem item : restaurant.getMenu()) {
+                if (item.getPrice() <= 350) {
+                    filteredMenu.add(item);
+                }
+            }
+            restaurant.setMenu(filteredMenu);
         }
 
         setupToolbar(restaurant.getName());
@@ -70,13 +84,7 @@ public class RestaurantDetailActivity extends AppCompatActivity {
     private void setupMenu(Restaurant r) {
         RecyclerView rv = findViewById(R.id.rvMenu);
         rv.setLayoutManager(new LinearLayoutManager(this));
-        
-        List<FoodItem> menu = r.getMenu();
-        if (menu.isEmpty()) {
-            menu = getMockMenu(r.getName());
-        }
-        
-        rv.setAdapter(new MenuAdapter(menu));
+        rv.setAdapter(new MenuAdapter(r.getMenu()));
     }
 
     private void setupCartBar() {
@@ -101,38 +109,9 @@ public class RestaurantDetailActivity extends AppCompatActivity {
     }
 
     private Restaurant findRestaurantById(String id) {
-        for (Restaurant r : getMockData()) {
+        for (Restaurant r : MockData.getRestaurants()) {
             if (r.getId().equals(id)) return r;
         }
         return null;
-    }
-
-    private List<FoodItem> getMockMenu(String restaurantName) {
-        List<FoodItem> menu = new ArrayList<>();
-        menu.add(new FoodItem("f1", "Classic " + restaurantName + " Special", 299.0, "Our signature dish made with fresh ingredients and authentic spices.", "https://images.unsplash.com/photo-1546069901-ba9599a7e63c", true));
-        menu.add(new FoodItem("f2", "Spicy Gourmet Platter", 450.0, "A delightful mix of spicy flavors that will tingle your taste buds.", "https://images.unsplash.com/photo-1567620905732-2d1ec7bb7445", false));
-        menu.add(new FoodItem("f3", "Healthy Garden Salad", 199.0, "Fresh greens, cherry tomatoes, and cucumber with a light balsamic dressing.", "https://images.unsplash.com/photo-1512621776951-a57141f2eefd", true));
-        menu.add(new FoodItem("f4", "Crispy Delights", 250.0, "Deep-fried golden perfection served with a tangy dip.", "https://images.unsplash.com/photo-1562967914-608f82629710", true));
-        return menu;
-    }
-
-    private List<Restaurant> getMockData() {
-        List<Restaurant> list = new ArrayList<>();
-        list.add(new Restaurant("r1", "Domino's", 550.0, 4.2, 120, 0.45, 1.2, new ArrayList<>(), 
-            "android.resource://com.example.foodkart/drawable/dominos_logo", 
-            "Pizzas, Italian", 25));
-        list.add(new Restaurant("r2", "KFC", 450.0, 3.8, 80, 0.6, 2.5, new ArrayList<>(), 
-            "android.resource://com.example.foodkart/drawable/kfc_logo", 
-            "Burgers, Fast Food", 35));
-        list.add(new Restaurant("r3", "Burger King", 350.0, 4.0, 200, 0.3, 0.8, new ArrayList<>(), 
-            "android.resource://com.example.foodkart/drawable/burger_king_logo", 
-            "Burgers, American", 20));
-        list.add(new Restaurant("r4", "Pizza Hut", 600.0, 4.5, 150, 0.2, 3.0, new ArrayList<>(), 
-            "android.resource://com.example.foodkart/drawable/pizza_hut_logo", 
-            "Pizzas, Continental", 40));
-        list.add(new Restaurant("r5", "Subway", 300.0, 4.1, 90, 0.5, 1.5, new ArrayList<>(), 
-            "android.resource://com.example.foodkart/drawable/subway_logo",
-            "Salads, Healthy Food", 15));
-        return list;
     }
 }

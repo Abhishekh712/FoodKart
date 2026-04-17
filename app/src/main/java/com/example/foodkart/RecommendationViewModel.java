@@ -30,20 +30,23 @@ public class RecommendationViewModel extends ViewModel {
     public void initData(List<Restaurant> restaurants, double userBudget) {
         this.allRestaurants = restaurants;
         this.decisionState = new DecisionState(restaurants);
-        
-        executor.execute(() -> {
-            for (Restaurant r : allRestaurants) {
-                FuzzyNumber[] vector = normalizationEngine.generateFuzzyVector(r, userBudget);
-                decisionState.cacheVector(r.getId(), vector);
-            }
-            // Initial default ranking
-            updateRanking(50, 50, 50);
-        });
+        updateRanking(50, 50, 50, userBudget);
     }
 
-    public void updateRanking(double budgetPref, double qualityPref, double proximityPref) {
+    public void updateRanking(double budgetPref, double qualityPref, double proximityPref, double targetBudget) {
         executor.execute(() -> {
+            // 1. Re-normalize vectors based on the NEW target budget
+            // This is key: as the user changes their budget, the "Price Score" for every restaurant changes.
+            for (Restaurant r : allRestaurants) {
+                FuzzyNumber[] vector = normalizationEngine.generateFuzzyVector(r, targetBudget);
+                decisionState.cacheVector(r.getId(), vector);
+            }
+
+            // 2. Calculate new weights via AHP
+            // Increased sensitivity: we pass the raw preferences to the AHP engine.
             AHPResult ahp = AHPEngine.calculateAHP(new double[]{budgetPref, qualityPref, proximityPref});
+            
+            // 3. Rank using TOPSIS
             List<Restaurant> ranked = topsisEngine.rankRestaurants(decisionState, ahp.weights);
             
             currentWeights.postValue(ahp);

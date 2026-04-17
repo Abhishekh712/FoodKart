@@ -37,6 +37,14 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation("com.github.bumptech.glide:glide:4.16.0")
+    
+    // Room components
+    implementation(libs.room.runtime)
+    // annotationProcessor(libs.room.compiler) // For Java
+    // If using Kotlin (which you seem to have in dependencies), use ksp or kapt
+    // but since this is a Java project mostly, annotationProcessor is fine.
+    annotationProcessor(libs.room.compiler)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
